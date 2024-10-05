@@ -1,4 +1,3 @@
-import React from 'react'
 import ReactReconciler from 'react-reconciler'
 import { ReactElement } from 'react'
 
@@ -24,12 +23,12 @@ const MarkdownRenderer = {
   isPrimaryRenderer: false,
 
   // Create an internal instance for host components
-  createInstance(type: string, props: Record<string, any>): Node {
+  createInstance(type: string, props: Record<string, any>): Instance {
     return { type, props, children: [] }
   },
 
   // Create a text node
-  createTextInstance(text: string): Node {
+  createTextInstance(text: string): TextInstance {
     return { type: 'TEXT_ELEMENT', props: { nodeValue: text }, children: [] }
   },
 
@@ -91,7 +90,7 @@ const MarkdownRenderer = {
   },
 
   commitTextUpdate(
-    _textInstance: string,
+    _textInstance: TextInstance,
     _oldText: string,
     newText: string
   ): string {
@@ -141,7 +140,11 @@ type Type = string
 type Props = Record<string, any>
 type SuspenseInstance = Node
 type Instance = Node
-type TextInstance = string
+type TextInstance = Node & {
+  type: 'TEXT_ELEMENT'
+  props: { nodeValue: string }
+  children: []
+}
 type HydratableInstance = never
 type PublicInstance = Instance
 type HostContext = {}
@@ -151,7 +154,6 @@ type TimeoutHandle = ReturnType<typeof setTimeout>
 const noTimeout = -1
 type EventPriority = number
 const DefaultEventPriority: EventPriority = 0
-
 // Extend your existing MarkdownRenderer with missing properties
 const ExtendedMarkdownRenderer: ReactReconciler.HostConfig<
   Type,
@@ -268,7 +270,12 @@ function containerToMarkdown(container: Container): string {
       case 'pre':
         return `\`\`\`\n${processChildren()}\n\`\`\`\n\n`
       case 'code':
-        return `\`${processChildren()}\``
+        const parent = isElement(node.parent) ? node.parent : null
+        if (parent && parent.type === 'pre') {
+          return processChildren()
+        } else {
+          return `\`${processChildren()}\``
+        }
       case 'em':
         return `*${processChildren()}*`
       case 'strong':
@@ -365,17 +372,13 @@ function containerToMarkdown(container: Container): string {
     return markdown
   }
 
-  // Add this type guard function
-  function isNodeWithChildren(node: Node): node is Node & { children: Node[] } {
-    return (
-      typeof node === 'object' &&
-      'children' in node &&
-      Array.isArray((node as any).children)
-    )
-  }
-
   return container.children.map(convertNode).join('')
 }
 
+function isElement(node: Node | undefined): node is Node & { type: string } {
+  return node !== undefined && typeof node === 'object' && 'type' in node
+}
+
+// ... rest of the file
 // Export the render function
 export { render }

@@ -200,4 +200,59 @@ describe('render', () => {
       '| Row 2, Cell 1 | Row 2, Cell 2 |\n'
     expect(result).toBe(expected)
   })
+
+  it('should render a combination of various HTML tags', () => {
+    const result = render(
+      <div>
+        <h1>Main Heading</h1>
+        <p>
+          This is a <strong>bold</strong> and <em>italic</em> text with a{' '}
+          <a href="https://example.com">link</a>.
+        </p>
+        <ul>
+          <li>Unordered list item 1</li>
+          <li>Unordered list item 2</li>
+        </ul>
+        <ol>
+          <li>Ordered list item 1</li>
+          <li>Ordered list item 2</li>
+        </ol>
+        <blockquote>
+          This is a blockquote with <code>inline code</code>.
+        </blockquote>
+        <pre>
+          <code>console.log("This is a code block");</code>
+        </pre>
+        <table>
+          <thead>
+            <tr>
+              <th>Column 1</th>
+              <th>Column 2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Row 1, Cell 1</td>
+              <td>Row 1, Cell 2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    )
+    const expected =
+      '# Main Heading\n\n' +
+      'This is a **bold** and *italic* text with a [link](https://example.com).\n\n' +
+      '- Unordered list item 1\n' +
+      '- Unordered list item 2\n\n' +
+      '1. Ordered list item 1\n' +
+      '2. Ordered list item 2\n\n' +
+      '> This is a blockquote with `inline code`.\n\n' +
+      '```\n' +
+      'console.log("This is a code block");\n' +
+      '```\n\n' +
+      '| Column 1 | Column 2 |\n' +
+      '| -------- | -------- |\n' +
+      '| Row 1, Cell 1 | Row 1, Cell 2 |\n'
+    expect(result).toBe(expected)
+  })
 })
