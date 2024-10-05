@@ -255,4 +255,10 @@ describe('render', () => {
       '| Row 1, Cell 1 | Row 1, Cell 2 |\n'
     expect(result).toBe(expected)
   })
+
+  it('should not care about props', () => {
+    const result = render(<p style="color: blue;">p text</p>)
+    const expected = 'p text\n\n'
+    expect(result).toBe(expected)
+  })
 })
