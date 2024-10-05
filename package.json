@@ -1,0 +1,12 @@
+{
+  "name": "html-to-markdown-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "bun run -r build",
+    "dev": "bun run --cwd app dev"
+  },
+  "workspaces": [
+    "react-html-to-markdown",
+    "app"
+  ]
+}

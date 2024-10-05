@@ -1,0 +1,22 @@
+{
+  "name": "react-html-to-markdown",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "dependencies": {
+    "react-reconciler": "0.29.2"
+  },
+  "devDependencies": {
+    "@types/react-reconciler": "^0.28.8"
+  }
+}
