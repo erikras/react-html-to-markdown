@@ -21,6 +21,24 @@ describe('render', () => {
     expect(result).toBe(expected)
   })
 
+  it('should render a h4', () => {
+    const result = render(<h4>Subsection</h4>)
+    const expected = '#### Subsection\n\n'
+    expect(result).toBe(expected)
+  })
+
+  it('should render a h5', () => {
+    const result = render(<h5>Minor Section</h5>)
+    const expected = '##### Minor Section\n\n'
+    expect(result).toBe(expected)
+  })
+
+  it('should render a h6', () => {
+    const result = render(<h6>Smallest Heading</h6>)
+    const expected = '###### Smallest Heading\n\n'
+    expect(result).toBe(expected)
+  })
+
   it('should render a paragraph', () => {
     const result = render(<p>This is a paragraph.</p>)
     const expected = 'This is a paragraph.\n\n'

@@ -184,9 +184,11 @@ const ExtendedMarkdownRenderer: ReactReconciler.HostConfig<
   supportsPersistence: false,
   supportsHydration: false,
   preparePortalMount: () => {},
-  scheduleTimeout: (fn: (...args: unknown[]) => unknown, delay?: number) =>
-    setTimeout(fn, delay) as unknown as -1,
-  cancelTimeout: clearTimeout,
+  scheduleTimeout: (
+    fn: (...args: unknown[]) => unknown,
+    delay?: number | undefined
+  ): Timer => setTimeout(fn, delay),
+  cancelTimeout: (id: Timer) => clearTimeout(id),
   noTimeout,
   // Add any other missing properties here
   getCurrentEventPriority: () => DefaultEventPriority,
@@ -250,6 +252,12 @@ function containerToMarkdown(container: Container): string {
         return `## ${processChildren()}\n\n`
       case 'h3':
         return `### ${processChildren()}\n\n`
+      case 'h4':
+        return `#### ${processChildren()}\n\n`
+      case 'h5':
+        return `##### ${processChildren()}\n\n`
+      case 'h6':
+        return `###### ${processChildren()}\n\n`
       case 'p':
         return `${processChildren()}\n\n`
       case 'ul':
