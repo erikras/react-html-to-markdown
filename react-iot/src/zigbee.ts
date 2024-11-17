@@ -1,7 +1,6 @@
 import mqtt from 'mqtt'
 import { IotApi, Temperature } from "./iot";
 import { z } from 'zod'
-import { rgbToHsxY } from './colors';
 
 const temperatures: Record<Temperature, number> = {
   coolest: 153,
@@ -39,7 +38,7 @@ export function createZigbeeClient(): { api: IotApi, cleanup: () => void } {
               state: device.on ? 'ON' : 'OFF',
             }
             if (device.color) {
-              state.color = rgbToHsxY(device.color)
+              state.color = device.color
             }
             if (device.temperature) {
               state.color_temp = temperatures[device.temperature]

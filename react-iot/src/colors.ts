@@ -4,14 +4,17 @@ export type RGB = {
   blue: number;
 };
 
-type HsxY = {
+export type HsxY = {
   hue: number;
   saturation: number;
   x: number;
   y: number;
 };
 
-export function rgbToHsxY(rgb: RGB): HsxY {
+type Hex = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
+export type HexColor = `#${Hex}${Hex}${Hex}${Hex}${Hex}${Hex}`
+
+function rgbToHsxY(rgb: RGB): HsxY {
   const { red, green, blue } = rgb;
 
   // Normalize RGB values to the range [0, 1]
@@ -56,4 +59,26 @@ export function rgbToHsxY(rgb: RGB): HsxY {
     x: parseFloat(x.toFixed(4)),
     y: parseFloat(y.toFixed(4)),
   };
+}
+
+function hexToRGB(hex: HexColor): RGB {
+  if (hex.length === 7) {
+    const red = parseInt(hex.slice(1, 3), 16);
+    const green = parseInt(hex.slice(3, 5), 16);
+    const blue = parseInt(hex.slice(5, 7), 16);
+
+    return { red, green, blue };
+  }
+
+  throw new Error("Invalid hex color format. Ensure it's in the form '#RRGGBB'.");
+}
+
+export function convertToHsxY(color: RGB | HexColor | HsxY): HsxY {
+  if (typeof color === 'string') {
+    return convertToHsxY(hexToRGB(color))
+  }
+  if ('red' in color) {
+    return rgbToHsxY(color)
+  }
+  return color
 }

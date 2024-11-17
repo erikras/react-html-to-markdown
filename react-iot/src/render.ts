@@ -1,6 +1,7 @@
 import ReactReconciler from 'react-reconciler'
 import { ReactElement } from 'react'
 import { IotDevice, IotApi, BulbDevice } from './iot'
+import { convertToHsxY } from './colors'
 
 // Define a type for the container
 type Container = {
@@ -115,8 +116,8 @@ const MarkdownRenderer = {
   commitUpdate(
     instance: any,
     _updatePayload: any,
-    type: string,
-    oldProps: any,
+    _type: string,
+    _oldProps: any,
     newProps: any
   ) {
     instance.props = newProps
@@ -272,7 +273,7 @@ function containerToIOT(container: Container): IotDevice[] {
           name: props.name,
           on: parentOff ? false : props.on,
           temperature: props.temp,
-          color: props.color,
+          color: props.color ? convertToHsxY(props.color) : undefined
         }
       case 'room':
         if (isInsideRoom) {

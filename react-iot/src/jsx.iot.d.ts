@@ -1,5 +1,5 @@
 import { Temperature } from './iot'
-import { RGB } from './colors'
+import { RGB, HexColor, HsxY } from './colors'
 
 declare global {
   namespace JSX {
@@ -20,7 +20,7 @@ declare global {
           /** The temperature of the bulb */
           temp?: never
           /** The color of the bulb */
-          color: RGB
+          color: RGB | HexColor | HsxY
         }
         | {
           temp?: never

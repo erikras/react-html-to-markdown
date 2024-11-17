@@ -1,4 +1,4 @@
-import { RGB } from "./colors"
+import { HsxY } from "./colors"
 
 export type Temperature = "coolest" | "cool" | "neutral" | "warmest"
 
@@ -7,7 +7,7 @@ export type BulbDevice = {
   name: string
   on: boolean
   temperature?: Temperature
-  color?: RGB
+  color?: HsxY
 }
 
 export type RoomDevice = {

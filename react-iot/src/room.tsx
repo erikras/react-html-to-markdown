@@ -8,7 +8,7 @@ export function Room() {
   }, [on])
   return (
     <room name="Office">
-      <bulb name="Bulb 1" on={on} temp="coolest" />
+      <bulb name="Bulb 1" on={on} color="#00ff00" />
     </room>
   )
 }
