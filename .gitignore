@@ -38,3 +38,5 @@ vite.config.ts.timestamp-*
 # Temporary files
 *.tmp
 *.temp
+
+output.md

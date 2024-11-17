@@ -8,5 +8,8 @@
   "workspaces": [
     "react-html-to-markdown",
     "app"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
 }

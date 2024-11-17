@@ -1,6 +1,8 @@
 import React from 'react'
-import { describe, expect, it } from 'bun:test'
-import { render } from './render'
+import { describe, expect, it, mock } from 'bun:test'
+import { containerToMarkdown, render } from './render'
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 describe('render', () => {
   it('should render a h1', () => {
@@ -278,5 +280,71 @@ describe('render', () => {
     const result = render(<p style="color: blue;">p text</p>)
     const expected = 'p text\n\n'
     expect(result).toBe(expected)
+  })
+
+  it('should handle useEffect updates', async () => {
+    const updates: string[] = []
+    const Page = () => {
+      const [count, setCount] = React.useState(0)
+      React.useEffect(() => {
+        const interval = setInterval(() => {
+          setCount((prev) => prev + 1)
+        }, 10)
+        return () => clearInterval(interval)
+      }, [])
+      return <div>{count.toString()}</div>
+    }
+
+    const cleanup = render(<Page />, (markdown) => {
+      updates.push(markdown)
+    })
+
+    try {
+      // Check initial render
+      expect(updates[0]).toEqual('0')
+
+      // Wait for updates
+      for (let i = 1; i < 4; i++) {
+        await sleep(20) // Slightly longer than the interval
+        expect(updates[i]).toEqual(i.toString())
+      }
+    } finally {
+      cleanup()
+    }
+  })
+
+  it('should handle useEffect updates when text is nested', async () => {
+    const updates: string[] = []
+    const Page = () => {
+      const [count, setCount] = React.useState(0)
+      React.useEffect(() => {
+        const interval = setInterval(() => {
+          setCount((prev) => prev + 1)
+        }, 10)
+        return () => clearInterval(interval)
+      }, [])
+      return (
+        <div>
+          <h1>{count.toString()}</h1>
+        </div>
+      )
+    }
+
+    const cleanup = render(<Page />, (markdown) => {
+      updates.push(markdown)
+    })
+
+    try {
+      // Wait for initial render
+      expect(updates[0]).toEqual('# 0\n\n')
+
+      // Wait for each update
+      for (let i = 1; i < 4; i++) {
+        await sleep(20) // Slightly longer than the interval
+        expect(updates[i]).toEqual(`# ${i}\n\n`)
+      }
+    } finally {
+      cleanup()
+    }
   })
 })

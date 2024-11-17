@@ -4,23 +4,24 @@ import { ReactElement } from 'react'
 // Define a type for the container
 type Container = {
   children: Array<Node>
+  onCommit: (markdown: string) => void
 }
 
 // Define a type for the node
 type Node =
   | {
-      type: string
-      props: Record<string, any>
-      children: Array<Node | string>
-      parent?: Node
-    }
+    type: string
+    props: Record<string, any>
+    children: Array<Node | string>
+    parent?: Node
+  }
   | string
 
 const MarkdownRenderer = {
   // Configuration options for the reconciler
   now: Date.now,
   supportsMutation: true,
-  isPrimaryRenderer: false,
+  isPrimaryRenderer: true,
 
   // Create an internal instance for host components
   createInstance(type: string, props: Record<string, any>): Instance {
@@ -90,10 +91,11 @@ const MarkdownRenderer = {
   },
 
   commitTextUpdate(
-    _textInstance: TextInstance,
-    _oldText: string,
+    textInstance: TextInstance,
+    oldText: string,
     newText: string
   ): string {
+    textInstance.props.nodeValue = newText
     return newText
   },
 
@@ -101,18 +103,35 @@ const MarkdownRenderer = {
     return false
   },
 
-  prepareUpdate() {
-    return null
+  prepareUpdate(
+    instance: any,
+    type: string,
+    oldProps: any,
+    newProps: any
+  ) {
+    return true
   },
 
   commitUpdate(
     instance: any,
-    _updatePayload: any,
-    _type: any,
-    _oldProps: any,
+    updatePayload: any,
+    type: any,
+    oldProps: any,
     newProps: any
   ) {
     instance.props = newProps
+
+    if (typeof newProps.children === 'string') {
+      if (instance.children.length === 0) {
+        instance.children.push({
+          type: 'TEXT_ELEMENT',
+          props: { nodeValue: newProps.children },
+          children: [],
+        })
+      } else {
+        instance.children[0].props.nodeValue = newProps.children
+      }
+    }
   },
 
   getPublicInstance(instance: any) {
@@ -120,19 +139,34 @@ const MarkdownRenderer = {
   },
 
   getRootHostContext() {
-    return {}
+    return null
   },
 
-  getChildHostContext() {
-    return {}
+  getChildHostContext(value: any) {
+    return value
   },
 
-  prepareForCommit() {},
-  resetAfterCommit() {},
+  prepareForCommit() { return null },
+  resetAfterCommit(container: Container) {
+    container.onCommit(containerToMarkdown(container))
+  },
 
   shouldSetTextContent(_type: string) {
     return false
   },
+
+  // Add these missing methods for effects
+  scheduleTimeout: setTimeout,
+  cancelTimeout: clearTimeout,
+  noTimeout: -1,
+
+  getCurrentEventPriority() {
+    return 99 // DefaultEventPriority
+  },
+
+  clearContainer(container: Container) {
+    container.children = []
+  }
 }
 
 // Define the types for your host environment
@@ -148,7 +182,7 @@ type TextInstance = Node & {
 type HydratableInstance = never
 type PublicInstance = Instance
 type HostContext = {}
-type UpdatePayload = never
+type UpdatePayload = boolean
 type ChildSet = never
 type TimeoutHandle = ReturnType<typeof setTimeout>
 const noTimeout = -1
@@ -183,21 +217,18 @@ const ExtendedMarkdownRenderer: ReactReconciler.HostConfig<
   ...MarkdownRenderer,
   supportsPersistence: false,
   supportsHydration: false,
-  preparePortalMount: () => {},
-  scheduleTimeout: (
-    fn: (...args: unknown[]) => unknown,
-    delay?: number | undefined
-  ): Timer => setTimeout(fn, delay),
-  cancelTimeout: (id: Timer) => clearTimeout(id),
+  preparePortalMount: () => { },
+  scheduleTimeout: setTimeout,
+  cancelTimeout: clearTimeout,
   noTimeout,
   // Add any other missing properties here
   getCurrentEventPriority: () => DefaultEventPriority,
   getInstanceFromNode: () => null,
-  beforeActiveInstanceBlur: () => {},
-  afterActiveInstanceBlur: () => {},
-  prepareScopeUpdate: () => {},
+  beforeActiveInstanceBlur: () => { },
+  afterActiveInstanceBlur: () => { },
+  prepareScopeUpdate: () => { },
   getPublicInstance: (instance) => instance,
-  detachDeletedInstance: () => {},
+  detachDeletedInstance: () => { },
   getInstanceFromScope: (_scopeInstance: any) => null,
   clearContainer: (container: Container) => {
     container.children = []
@@ -210,26 +241,40 @@ const ExtendedMarkdownRenderer: ReactReconciler.HostConfig<
 
 const reconciler = ReactReconciler(ExtendedMarkdownRenderer)
 
-function render(element: ReactElement): string {
-  const container: Container = { children: [] }
+// Function overloads
+export function render(element: ReactElement): string
+export function render(element: ReactElement, onCommit: (markdown: string) => void): () => void
+export function render(
+  element: ReactElement,
+  onCommit?: (markdown: string) => void
+): string | (() => void) {
+  const container: Container = { children: [], onCommit: onCommit || (() => { }) }
   const root = reconciler.createContainer(
-    container, // The DOM element to render into
-    0, // Lane: Used for prioritizing updates (0 is the default lane)
-    null, // Hydration callbacks: Used for server-side rendering (null if not used)
-    true, // Is this a strict mode container?
-    null, // Concurrent updates by default override (null uses default behavior)
-    '', // Identifier prefix for debugging
-    (error) => console.error(error), // Error callback for logging render errors
-    null // Callback for recoverable errors (null uses default behavior)
+    container,
+    0,
+    null,
+    true,
+    null,
+    '',
+    (error) => console.error(error),
+    null
   )
 
-  reconciler.updateContainer(element, root, null, () => {})
+  // Do initial render synchronously
+  reconciler.updateContainer(element, root, null, () => { })
 
-  const result = containerToMarkdown(container)
-  return result
+  // If there's no onCommit callback, return the initial markdown
+  if (!onCommit) {
+    return containerToMarkdown(container)
+  }
+
+  // Return cleanup function
+  return () => {
+    reconciler.updateContainer(null, root, null, () => { })
+  }
 }
 
-function containerToMarkdown(container: Container): string {
+export function containerToMarkdown(container: Container): string {
   let listCounter = 0
 
   const convertNode = (node: Node | string): string => {
@@ -386,7 +431,3 @@ function containerToMarkdown(container: Container): string {
 function isElement(node: Node | undefined): node is Node & { type: string } {
   return node !== undefined && typeof node === 'object' && 'type' in node
 }
-
-// ... rest of the file
-// Export the render function
-export { render }
