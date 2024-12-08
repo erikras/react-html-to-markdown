@@ -285,7 +285,7 @@ function containerToIOT(container: Container): IotDevice[] {
           off: Boolean(props.off),
           devices: children
             .map(child => convertNode(child, props.off, true))
-            .filter((node): node is BulbDevice => node !== null && node.type === 'bulb')
+            .filter((node): node is IotDevice => node !== null)
         }
       case 'button':
         return {
