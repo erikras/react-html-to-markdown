@@ -287,6 +287,13 @@ function containerToIOT(container: Container): IotDevice[] {
             .map(child => convertNode(child, props.off, true))
             .filter((node): node is BulbDevice => node !== null && node.type === 'bulb')
         }
+      case 'button':
+        return {
+          type: 'button',
+          name: props.name,
+          onPress: props.onPress,
+          onDoublePress: props.onDoublePress,
+        }
       case 'TEXT_ELEMENT':
         return null
       default:

@@ -2,13 +2,10 @@ import React from 'react'
 
 export function Room() {
   const [on, setOn] = React.useState(false)
-  React.useEffect(() => {
-    const interval = setInterval(() => setOn((prev) => !prev), 2000)
-    return () => clearInterval(interval)
-  }, [on])
   return (
     <room name="Office">
-      <bulb name="Bulb 1" on={on} color="#00ff00" />
+      <bulb name="Bulb 1" on={on} color="#ffffff" />
+      <button name="Button" onPress={() => setOn((prev) => !prev)} />
     </room>
   )
 }

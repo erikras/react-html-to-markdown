@@ -45,6 +45,9 @@ export function createZigbeeClient(): { api: IotApi, cleanup: () => void } {
             }
             client.publish(`zigbee2mqtt/${device.name}/set`, Buffer.from(JSON.stringify(state)))
             break
+          case 'button':
+            client.publish(`zigbee2mqtt/${device.name}/set`, Buffer.from(JSON.stringify({ on_press: device.onPress })))
+            break
           case 'room':
             api.update(device.devices)
             break

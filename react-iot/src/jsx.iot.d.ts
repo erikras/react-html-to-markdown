@@ -1,7 +1,7 @@
 import { Temperature } from './iot'
 import { RGB, HexColor, HsxY } from './colors'
 
-declare global {
+declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
       bulb: {
@@ -9,24 +9,9 @@ declare global {
         name: string
         /** Whether the bulb is on */
         on: boolean
-      } & (
-        | {
-          /** The temperature of the bulb */
-          temp: Temperature
-          /** The color of the bulb */
-          color?: never
-        }
-        | {
-          /** The temperature of the bulb */
-          temp?: never
-          /** The color of the bulb */
-          color: RGB | HexColor | HsxY
-        }
-        | {
-          temp?: never
-          color?: never
-        }
-      )
+        color?: RGB | HexColor | HsxY
+        temp?: Temperature
+      }
       room: {
         /** Name of the room */
         name: string
@@ -35,6 +20,13 @@ declare global {
         /** The devices in the room */
         children: React.ReactNode
       }
+      button: {
+        name: string
+        onPress: () => void
+        onDoublePress?: () => void
+      }
     }
   }
 }
+
+export { }

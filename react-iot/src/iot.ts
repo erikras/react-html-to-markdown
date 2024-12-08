@@ -17,7 +17,14 @@ export type RoomDevice = {
   devices: Array<BulbDevice>
 }
 
-export type IotDevice = BulbDevice | RoomDevice
+export type ButtonDevice = {
+  type: 'button'
+  name: string
+  onPress: () => void
+  onDoublePress?: () => void
+}
+
+export type IotDevice = BulbDevice | RoomDevice | ButtonDevice
 
 export type IotApi = {
   update: (devices: IotDevice[]) => void
