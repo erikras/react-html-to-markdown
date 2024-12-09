@@ -11,8 +11,7 @@ export type HsxY = {
   y: number;
 };
 
-type Hex = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
-export type HexColor = `#${Hex}${Hex}${Hex}${Hex}${Hex}${Hex}`
+export type HexColor = string;
 
 function rgbToHsxY(rgb: RGB): HsxY {
   const { red, green, blue } = rgb;
@@ -62,7 +61,7 @@ function rgbToHsxY(rgb: RGB): HsxY {
 }
 
 function hexToRGB(hex: HexColor): RGB {
-  if (hex.length === 7) {
+  if (hex.length === 7 && /^#[0-9A-Fa-f]{6}$/.test(hex)) {
     const red = parseInt(hex.slice(1, 3), 16);
     const green = parseInt(hex.slice(3, 5), 16);
     const blue = parseInt(hex.slice(5, 7), 16);
@@ -75,10 +74,10 @@ function hexToRGB(hex: HexColor): RGB {
 
 export function convertToHsxY(color: RGB | HexColor | HsxY): HsxY {
   if (typeof color === 'string') {
-    return convertToHsxY(hexToRGB(color))
+    return convertToHsxY(hexToRGB(color));
   }
   if ('red' in color) {
-    return rgbToHsxY(color)
+    return rgbToHsxY(color);
   }
-  return color
+  return color;
 }
