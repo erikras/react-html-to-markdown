@@ -221,6 +221,35 @@ describe('render', () => {
     expect(result).toBe(expected)
   })
 
+  it('should render a table with a longer content', () => {
+    const result = render(
+      <table>
+        <thead>
+          <tr>
+            <th>Header 1</th>
+            <th>Longer Header 2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Row 1, Cell 1</td>
+            <td>Row 1, Cell 2 really long content</td>
+          </tr>
+          <tr>
+            <td>Row 2, Cell 1</td>
+            <td>Row 2, Cell 2</td>
+          </tr>
+        </tbody>
+      </table>
+    )
+    const expected =
+      '| Header 1      | Longer Header 2                   |\n' +
+      '| ------------- | --------------------------------- |\n' +
+      '| Row 1, Cell 1 | Row 1, Cell 2 really long content |\n' +
+      '| Row 2, Cell 1 | Row 2, Cell 2 |\n'
+    expect(result).toBe(expected)
+  })
+
   it('should render a combination of various HTML tags', () => {
     const result = render(
       <div>

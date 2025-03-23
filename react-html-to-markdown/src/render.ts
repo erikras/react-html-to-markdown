@@ -17,43 +17,113 @@ type Node =
   }
   | string
 
-const MarkdownRenderer = {
+const MarkdownRenderer: ReactReconciler.HostConfig<
+  Type,
+  Props,
+  Container,
+  Instance,
+  TextInstance,
+  SuspenseInstance,
+  HydratableInstance,
+  PublicInstance,
+  HostContext,
+  UpdatePayload,
+  ChildSet,
+  TimeoutHandle,
+  typeof noTimeout
+> & {
+  /**
+   * Returns the priority level of the current event being handled
+   * Used by React to determine the priority of updates
+   */
+  getCurrentEventPriority: () => number
+
+  /**
+   * Given a DOM node, returns the corresponding React instance
+   * Used internally by React for event handling
+   */
+  getInstanceFromNode: (node: Node) => null | unknown
+
+  /**
+   * Called before the active instance loses focus
+   * Used for managing focus states in React
+   */
+  beforeActiveInstanceBlur: () => void
+
+  /**
+   * Called after the active instance loses focus
+   * Used for managing focus states in React
+   */
+  afterActiveInstanceBlur: () => void
+
+  /**
+   * Used to update scope information for React's event system
+   * Part of React's internal event delegation system
+   */
+  prepareScopeUpdate: (scopeInstance: any, instance: any) => void
+
+  /**
+   * Returns the public instance for a given internal instance
+   * Used to expose the correct instance type to React refs
+   */
+  getPublicInstance: (instance: any) => any
+
+  /**
+   * Called when a node is being removed from the tree
+   * Allows cleanup of any instance-specific resources
+   */
+  detachDeletedInstance: (node: Node) => void
+
+  /**
+   * Returns the instance associated with a given scope
+   * Used for React's scope-based event handling
+   */
+  getInstanceFromScope: (scopeInstance: any) => null
+
+  /**
+   * Removes all children from a container
+   * Used during unmount and update operations
+   */
+  clearContainer: (container: Container) => void
+} = {
   // Configuration options for the reconciler
-  now: Date.now,
   supportsMutation: true,
   isPrimaryRenderer: true,
 
-  // Create an internal instance for host components
+  /** No cleanup needed for our markdown renderer */
+  detachDeletedInstance() { },
+
+  /** Creates a new instance of a host component (like div, p, etc) */
   createInstance(type: string, props: Record<string, any>): Instance {
     return { type, props, children: [] }
   },
 
-  // Create a text node
+  /** Creates a text node instance */
   createTextInstance(text: string): TextInstance {
     return { type: 'TEXT_ELEMENT', props: { nodeValue: text }, children: [] }
   },
 
+  /** Adds a child to the container's root level */
   appendChildToContainer(container: Container, child: Node) {
     container.children.push(child)
   },
 
+  /** Adds a child during initial render */
   appendInitialChild(parent: Node, child: Node | string) {
-    if (typeof parent !== 'string') {
-      if (typeof child === 'string') {
-        parent.children.push({
-          type: 'TEXT_ELEMENT',
-          props: { nodeValue: child },
-          children: [],
-        })
-      } else {
-        parent.children.push(child)
-      }
-      if (typeof child !== 'string') {
-        child.parent = parent
-      }
+    if (typeof parent === 'string') return
+    if (typeof child === 'string') {
+      parent.children.push({
+        type: 'TEXT_ELEMENT',
+        props: { nodeValue: child },
+        children: [],
+      })
+    } else {
+      parent.children.push(child)
+      child.parent = parent
     }
   },
 
+  /** Adds a child during updates */
   appendChild(parent: Node, child: Node | string) {
     if (typeof parent !== 'string') {
       if (typeof child === 'string') {
@@ -72,9 +142,8 @@ const MarkdownRenderer = {
   },
 
   removeChild(parent: Node, child: Node | string) {
-    if (typeof parent !== 'string') {
-      parent.children = parent.children.filter((c) => c !== child)
-    }
+    if (typeof parent === 'string') return
+    parent.children = parent.children.filter((c) => c !== child)
   },
 
   removeChildFromContainer(container: Container, child: Node) {
@@ -104,21 +173,22 @@ const MarkdownRenderer = {
   },
 
   prepareUpdate(
-    instance: any,
-    type: string,
-    oldProps: any,
-    newProps: any
-  ) {
+    instance: Instance,
+    type: Type,
+    oldProps: Props,
+    newProps: Props
+  ): UpdatePayload {
     return true
   },
 
   commitUpdate(
-    instance: any,
-    updatePayload: any,
-    type: any,
-    oldProps: any,
-    newProps: any
-  ) {
+    instance: Instance,
+    updatePayload: UpdatePayload,
+    type: Type,
+    oldProps: Props,
+    newProps: Props
+  ): void {
+    if (typeof instance === 'string') return
     instance.props = newProps
 
     if (typeof newProps.children === 'string') {
@@ -128,8 +198,20 @@ const MarkdownRenderer = {
           props: { nodeValue: newProps.children },
           children: [],
         })
-      } else {
+      } else if (typeof instance.children[0] === 'string') {
+        instance.children[0] = {
+          type: 'TEXT_ELEMENT',
+          props: { nodeValue: instance.children[0] },
+          children: []
+        }
+      } else if (instance.children[0]?.type === 'TEXT_ELEMENT') {
         instance.children[0].props.nodeValue = newProps.children
+      } else {
+        instance.children[0] = {
+          type: 'TEXT_ELEMENT',
+          props: { nodeValue: newProps.children },
+          children: []
+        }
       }
     }
   },
@@ -146,7 +228,9 @@ const MarkdownRenderer = {
     return value
   },
 
-  prepareForCommit() { return null },
+  prepareForCommit() {
+    return null
+  },
   resetAfterCommit(container: Container) {
     container.onCommit(containerToMarkdown(container))
   },
@@ -166,7 +250,16 @@ const MarkdownRenderer = {
 
   clearContainer(container: Container) {
     container.children = []
-  }
+  },
+
+  supportsPersistence: false,
+  supportsHydration: false,
+  preparePortalMount: () => { },
+  getInstanceFromNode: () => null,
+  beforeActiveInstanceBlur: () => { },
+  afterActiveInstanceBlur: () => { },
+  prepareScopeUpdate: () => { },
+  getInstanceFromScope: (_scopeInstance: any) => null,
 }
 
 // Define the types for your host environment
@@ -215,13 +308,6 @@ const ExtendedMarkdownRenderer: ReactReconciler.HostConfig<
   clearContainer: (container: Container) => void
 } = {
   ...MarkdownRenderer,
-  supportsPersistence: false,
-  supportsHydration: false,
-  preparePortalMount: () => { },
-  scheduleTimeout: setTimeout,
-  cancelTimeout: clearTimeout,
-  noTimeout,
-  // Add any other missing properties here
   getCurrentEventPriority: () => DefaultEventPriority,
   getInstanceFromNode: () => null,
   beforeActiveInstanceBlur: () => { },
@@ -233,22 +319,24 @@ const ExtendedMarkdownRenderer: ReactReconciler.HostConfig<
   clearContainer: (container: Container) => {
     container.children = []
   },
-  prepareForCommit: (_containerInfo: Container): Record<string, any> | null => {
-    // Implement your logic here if needed
-    return null
-  },
 }
 
 const reconciler = ReactReconciler(ExtendedMarkdownRenderer)
 
 // Function overloads
 export function render(element: ReactElement): string
-export function render(element: ReactElement, onCommit: (markdown: string) => void): () => void
+export function render(
+  element: ReactElement,
+  onCommit: (markdown: string) => void
+): () => void
 export function render(
   element: ReactElement,
   onCommit?: (markdown: string) => void
 ): string | (() => void) {
-  const container: Container = { children: [], onCommit: onCommit || (() => { }) }
+  const container: Container = {
+    children: [],
+    onCommit: onCommit || (() => { }),
+  }
   const root = reconciler.createContainer(
     container,
     0,

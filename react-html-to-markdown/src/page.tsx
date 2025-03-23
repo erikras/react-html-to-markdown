@@ -16,6 +16,20 @@ export function Page() {
         My name is <span>John</span>
       </p>
       <p>Count: {count}</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Count</td>
+            <td>{count}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   )
 }
