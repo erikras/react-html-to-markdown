@@ -4,9 +4,10 @@ import { Page } from './page'
 import fs from 'fs'
 
 function main() {
-  let i = 0
   const cleanup = render(<Page />, (markdown) => {
-    fs.writeFileSync('output.md', markdown + `\n\n${i++}`)
+    if (markdown) {
+      fs.writeFileSync('output.md', markdown + `\n\n`)
+    }
   })
 
   // Clean up when process exits

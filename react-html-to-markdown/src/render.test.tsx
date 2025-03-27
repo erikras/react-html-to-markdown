@@ -700,3 +700,15 @@ describe('render', () => {
     expect(lines[2]).toMatch(/\| +50\.00/)
   })
 })
+
+export function HelloWorldDialog() {
+  return (
+    <attioform onSubmit={onSubmit}>
+      <attiorow>
+        <attiotextinput name="name" label="Name" />
+        <attiocombobox name="email" label="Email" options={emails} />
+      </attiorow>
+      <attiosubmitbutton label="Submit" />
+    </attioform>
+  )
+}
