@@ -8,13 +8,14 @@ export type BulbDevice = {
   on: boolean
   temperature?: Temperature
   color?: HsxY
+  brightness?: number
 }
 
 export type RoomDevice = {
   type: 'room'
   name: string
   off: boolean
-  devices: Array<BulbDevice>
+  devices: Array<IotDevice>
 }
 
 export type ButtonDevice = {

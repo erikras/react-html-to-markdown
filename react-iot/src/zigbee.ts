@@ -75,6 +75,7 @@ export function createZigbeeClient(): { api: IotApi, cleanup: () => void } {
             if (device.temperature) {
               state.color_temp = temperatures[device.temperature]
             }
+            state.brightness = Math.round(Math.max(0, Math.min(1, device.brightness ?? 1)) * 254)
             client.publish(`zigbee2mqtt/${device.name}/set`, Buffer.from(JSON.stringify(state)))
             break
 

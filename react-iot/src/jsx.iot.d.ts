@@ -1,5 +1,5 @@
 import { Temperature } from './iot'
-import { RGB, HexColor, HsxY } from './colors'
+import { RGB, HexColor, HsxY, ColorName } from './colors'
 
 declare module 'react' {
   namespace JSX {
@@ -9,8 +9,10 @@ declare module 'react' {
         name: string
         /** Whether the bulb is on */
         on: boolean
-        color?: RGB | HexColor | HsxY
+        color?: RGB | HexColor | HsxY | ColorName
         temp?: Temperature
+        /** Brightness of the bulb, from 0 to 1 */
+        brightness?: number
       }
       room: {
         /** Name of the room */

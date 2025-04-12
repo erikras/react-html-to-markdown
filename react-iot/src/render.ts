@@ -273,7 +273,8 @@ function containerToIOT(container: Container): IotDevice[] {
           name: props.name,
           on: parentOff ? false : props.on,
           temperature: props.temp,
-          color: props.color ? convertToHsxY(props.color) : undefined
+          color: props.color ? convertToHsxY(props.color) : undefined,
+          brightness: props.brightness,
         }
       case 'room':
         if (isInsideRoom) {

@@ -72,8 +72,19 @@ function hexToRGB(hex: HexColor): RGB {
   throw new Error("Invalid hex color format. Ensure it's in the form '#RRGGBB'.");
 }
 
-export function convertToHsxY(color: RGB | HexColor | HsxY): HsxY {
+
+export const toHex = {
+  Red: "#FF0000",
+  Yellow: "#FFFF00",
+  Green: "#00FF00",
+} as const
+export type ColorName = keyof typeof toHex
+
+export function convertToHsxY(color: RGB | HexColor | HsxY | ColorName): HsxY {
   if (typeof color === 'string') {
+    if (color in toHex) {
+      return convertToHsxY(toHex[color as ColorName]);
+    }
     return convertToHsxY(hexToRGB(color));
   }
   if ('red' in color) {
