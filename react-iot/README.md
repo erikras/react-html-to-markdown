@@ -8,6 +8,10 @@ A React renderer for IOT devices.
 npm install react-iot
 ```
 
+## Requirements
+
+You'll need to be running a [Zigbee2MQTT](https://www.zigbee2mqtt.io/) server to use this library.
+
 ## Usage
 
 ```tsx
