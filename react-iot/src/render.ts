@@ -12,13 +12,12 @@ type Container = {
 // Define a type for the node
 type Node =
   | {
-    type: string
-    props: Record<string, any>
-    children: Array<Node | string>
-    parent?: Node
-  }
+      type: string
+      props: Record<string, any>
+      children: Array<Node | string>
+      parent?: Node
+    }
   | string
-
 
 const MarkdownRenderer = {
   // Configuration options for the reconciler
@@ -28,9 +27,8 @@ const MarkdownRenderer = {
 
   // Create an internal instance for host components
   createInstance(type: string, props: Record<string, any>): Instance {
-    const newProps = type === 'bulb' && props.name
-      ? { ...props, key: props.name }
-      : props;
+    const newProps =
+      type === 'bulb' && props.name ? { ...props, key: props.name } : props
     return { type, props: newProps, children: [] }
   },
 
@@ -135,9 +133,9 @@ const MarkdownRenderer = {
     return {}
   },
 
-  prepareForCommit() { },
+  prepareForCommit() {},
   resetAfterCommit(container: Container) {
-    container.api.update(containerToIOT(container));
+    container.api.update(containerToIOT(container))
   },
 
   shouldSetTextContent(_type: string) {
@@ -193,7 +191,7 @@ const ExtendedMarkdownRenderer: ReactReconciler.HostConfig<
   ...MarkdownRenderer,
   supportsPersistence: false,
   supportsHydration: false,
-  preparePortalMount: () => { },
+  preparePortalMount: () => {},
   scheduleTimeout: (
     fn: (...args: unknown[]) => unknown,
     delay?: number | undefined
@@ -203,11 +201,11 @@ const ExtendedMarkdownRenderer: ReactReconciler.HostConfig<
   // Add any other missing properties here
   getCurrentEventPriority: () => DefaultEventPriority,
   getInstanceFromNode: () => null,
-  beforeActiveInstanceBlur: () => { },
-  afterActiveInstanceBlur: () => { },
-  prepareScopeUpdate: () => { },
+  beforeActiveInstanceBlur: () => {},
+  afterActiveInstanceBlur: () => {},
+  prepareScopeUpdate: () => {},
   getPublicInstance: (instance) => instance,
-  detachDeletedInstance: () => { },
+  detachDeletedInstance: () => {},
   getInstanceFromScope: (_scopeInstance: any) => null,
   clearContainer: (container: Container) => {
     container.children = []
@@ -220,8 +218,6 @@ const ExtendedMarkdownRenderer: ReactReconciler.HostConfig<
 
 const reconciler = ReactReconciler(ExtendedMarkdownRenderer)
 
-
-
 // Update the render function signature
 export function render(element: ReactElement): IotDevice[]
 export function render(element: ReactElement, api: IotApi): () => void
@@ -231,7 +227,7 @@ export function render(
 ): IotDevice[] | (() => void) {
   const container: Container = {
     children: [],
-    api: api || { update: () => { } }
+    api: api || { update: () => {} },
   }
   const root = reconciler.createContainer(
     container,
@@ -259,7 +255,11 @@ export function render(
 }
 
 function containerToIOT(container: Container): IotDevice[] {
-  const convertNode = (node: Node | string, parentOff: boolean = false, isInsideRoom: boolean = false): IotDevice | null => {
+  const convertNode = (
+    node: Node | string,
+    parentOff: boolean = false,
+    isInsideRoom: boolean = false
+  ): IotDevice | null => {
     if (typeof node === 'string') {
       return null
     }
@@ -273,7 +273,7 @@ function containerToIOT(container: Container): IotDevice[] {
           name: props.name,
           on: parentOff ? false : props.on,
           temperature: props.temp,
-          color: props.color ? convertToHsxY(props.color) : undefined,
+          color: convertToHsxY(props.color ?? 'White'),
           brightness: props.brightness,
         }
       case 'room':
@@ -285,8 +285,8 @@ function containerToIOT(container: Container): IotDevice[] {
           name: props.name,
           off: Boolean(props.off),
           devices: children
-            .map(child => convertNode(child, props.off, true))
-            .filter((node): node is IotDevice => node !== null)
+            .map((child) => convertNode(child, props.off, true))
+            .filter((node): node is IotDevice => node !== null),
         }
       case 'button':
         return {
@@ -304,6 +304,6 @@ function containerToIOT(container: Container): IotDevice[] {
   }
 
   return container.children
-    .map(node => convertNode(node, false, false))
+    .map((node) => convertNode(node, false, false))
     .filter((node): node is IotDevice => node !== null)
 }

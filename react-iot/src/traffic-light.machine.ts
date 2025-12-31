@@ -1,25 +1,25 @@
 import { setup } from 'xstate'
 
 export const trafficLightMachine = setup({}).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QBUBOBDAZpglgYwAIAZHKACwBcA6AJUgGIAPWC9CsKrd1ACgFYADEICU9NFlyES5anQgBtAQF1EoAA4B7WDgo4NAO1UhGiALQBGKuYCcAFgBsADgDM5oQCY+1gbfN8ANCAAnmbmzrZU4V4A7Oa2zvaefNEAvimB4tj4xKSUVADiqGBg+kwsbBxcYLzOQgKimZI5MgVFJYoqSCCa2roGRiYI5ubuVNb2ftG2Lu6x7i6BIQim0dFUjrYx8wkCybZpGRhZUrnUAJpgADaXGgDuZazsnJjcPG4iYkdN0nkX13cdIw9HR6QxdQYWaxUATODaecz2aLzWKOaKLUL2KheLz2Ww+azRayOHxpdIgfQaCBwIyNbI-ChArQg-rg0LONY2ByOQTc9wCex2dHLdzuTEbGJCBKbZzjA4gWknFpyRm9UEDMyOKGcpw8vh8gW2IUWZx8LHWCXRBIm6b7MkK5p5QrFMHqJl9F3GRDDRzrXauJzWAl48ZGuICSKbAlxBJJVJ2r5005UP43W4q5kewbvMYTPYzOaOcyhtbignbey7KaklJAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QBUBOBDAZpglgYwAIAZHKACwBcA6AJUgGIAPWC9CsKrd1ACgGYADEICU9NFlyES5anQgBtAQF1EoAA4B7WDgo4NAO1UhGiAIwAWAOxUAnHbsA2SwIAcAVgcAmS24A0IAE9EOyofISFzNxs3cztLAF94-3FsfGJSSioAcVQwMH0mFjYOLjBec3DRFMl0mWzc-MUVJBBNbV0DIxMEQXMqUwcHAUs+d0sbTyG-QLNnKiEbdwFR0z5LFwFPROSMVKkM6gBNMAAbE40Ad0LWdk5Mbh5TNxExXZrpTOOzy6ajNp09IYWt1zA5bJ5TO4XJCRl4bP4gggIWDPM8hKt1g5YjY+IkkiB9BoIHAjNU0h8KH8tADOsDEABaUzzdYWSGmSZrAR2cwIsxM+z2Vxc8Ko7YgMn7OpyKntQFdRBDXkIRZUNxiiW1TI5PJA9TUjq64yIbwuKh8QZYzaeGwCLGWJUq7EC512dVvckHKhfc4XGU0w3dSFuKguBx8cxWNymSymVzuJWeRNUbw4mzjGyDEYuLZ4oA */
   id: 'Traffic Light',
 
   states: {
     Red: {
       after: {
-        '5000': 'Green',
+        '3000': 'Green',
       },
     },
 
     Green: {
       after: {
-        '3000': 'Yellow',
+        '4000': 'Yellow',
       },
     },
 
     Yellow: {
       after: {
-        '1000': 'Red',
+        '1500': 'Red',
       },
     },
   },
